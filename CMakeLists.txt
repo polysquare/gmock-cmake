@@ -11,8 +11,7 @@ set (CMAKE_MODULE_PATH
 
 cmake_minimum_required (VERSION 2.8)
 
-include ("cmake/cmake-unit/CMakeUnitRunner")
-include ("cmake/cmake-unit/CMakeUnit")
+include ("cmake/cmake-module-common/Common" OPTIONAL)
 
 include (AddSimpleGTestHelper)
 
@@ -320,7 +319,8 @@ function (gmock_test_from_parent_in_external_project)
                                      BINARY_DIR
                                      "${EXTERNAL_PROJECT_BINARY_DIRECTORY}"
                                      NAMESPACES
-                                     ${NAMESPACES})
+                                     ${NAMESPACES}
+                                     VERBOSE_BUILD)
 
     endfunction ()
 
@@ -355,7 +355,7 @@ function (gmock_test_from_parent_in_external_project)
         else ()
 
             set (LINKED_TO_PARENT_GTEST_REGEX
-                 "^.*simple_test.*${GTEST_SUBPROJECT_BINARY_DIR}/.*gtest.*$")
+                 "^.*simple_test.*${GMOCK_SUBPROJECT_BINARY_DIR}/.*gtest.*$")
             set (LINKED_TO_PARENT_GMOCK_REGEX
                  "^.*simple_test.*${GMOCK_SUBPROJECT_BINARY_DIR}/.*gmock.*$")
 
@@ -559,14 +559,19 @@ endfunction ()
 
 set (_CURRENT_LIST_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
-cmake_unit_init (NAMESPACE "gmock"
-                 COVERAGE_FILES
-                 "${_CURRENT_LIST_DIR}/FindGMOCK.cmake"
-                 "${_CURRENT_LIST_DIR}/CheckForGoogleMockCompilerFlags.cmake"
-                 "${_CURRENT_LIST_DIR}/GoogleMockLibraryUtils.cmake")
+set (CMAKE_FILES
+     "${_CURRENT_LIST_DIR}/CheckForGoogleMockCompilerFlags.cmake"
+     "${_CURRENT_LIST_DIR}/FindGMOCK.cmake"
+     "${_CURRENT_LIST_DIR}/GoogleMockLibraryUtils.cmake"
+     "${_CURRENT_LIST_DIR}/CMakeLists.txt")
+set (MARKDOWN_FILES
+     "${_CURRENT_LIST_DIR}/LICENCE.md"
+     "${_CURRENT_LIST_DIR}/README.md")
 
-if (BIICODE)
+if (COMMAND cmake_module_add_common_targets)
 
-    add_bii_targets ()
+    cmake_module_add_common_targets (NAMESPACE "gmock"
+                                     CMAKE_FILES ${CMAKE_FILES}
+                                     DOCUMENTATION_FILES ${MARKDOWN_FILES})
 
 endif ()
